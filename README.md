@@ -8,8 +8,8 @@ PrepBot is an AI-powered interview simulator that asks questions, records spoken
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/your-username/prepbot.git
-cd prepbot
+git clone https://github.com/Divya19gupta/PrepBot.git
+cd PrepBot
 ```
 
 ### 2. Add Your API Keys
