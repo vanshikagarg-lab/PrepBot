@@ -1,0 +1,50 @@
+# 🎙️ PrepBot: AI Interview Simulator
+
+PrepBot is an AI-powered interview simulator that asks questions, records spoken answers, transcribes them using speech-to-text, and provides instant feedback using an LLM (e.g., Gemini or GPT).
+
+---
+## 🚀 Getting Started
+
+### 1. Clone the Repo
+
+# General Commands
+git clone https://github.com/your-username/prepbot.git
+cd prepbot
+
+### 2. Add Your API Keys
+
+Create a `.env` file in the `server/` folder with the following format:
+
+```env
+OPENAI_API_KEY=your_openai_key
+GEMINI_API_KEY=your_gemini_key
+```
+### 3. Run the App
+
+# Backend
+cd server
+npm install
+
+# Frontend
+cd ../client
+npm install
+
+---
+
+## 🛠 Features
+
+- 🎤 Voice recording with `MediaRecorder`
+- 🧠 Answer transcription (via Whisper API or whisper.cpp)
+- 🤖 AI feedback scoring using Gemini or GPT
+- 📊 Scored on clarity, relevance, structure, and confidence
+
+---
+
+## 📌 Notes
+
+- Be sure to **not commit your `.env`** file or `node_modules/`.
+- You can deploy this locally or host with services like Render, Railway, or Vercel.
+
+---
+
+
