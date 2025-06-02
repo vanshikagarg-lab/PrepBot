@@ -21,7 +21,7 @@ GEMINI_API_KEY=your_gemini_key
 ```
 ### 3. Run the App
 
-# Backend
+#### Backend
 
 ```bash
 # In /server
@@ -29,7 +29,7 @@ npm i
 npm run dev
 ```
 
-# Frontend
+#### Frontend
 
 ```bash
 cd ../client
