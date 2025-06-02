@@ -22,13 +22,20 @@ GEMINI_API_KEY=your_gemini_key
 ### 3. Run the App
 
 # Backend
-cd server
-npm install
+
+```bash
+# In /server
+npm i
+npm run dev
+```
 
 # Frontend
-cd ../client
-npm install
 
+```bash
+cd ../client
+npm i
+npm run dev
+```
 ---
 
 ## 🛠 Features
