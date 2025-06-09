@@ -1,34 +1,61 @@
-import express, {  Request, Response, Router }from "express";
+import express from "express";
 import fs from "fs";
 import path from "path";
-import { v4 as uuidv4 } from "uuid";
-import { transcribeAudio } from "../services/whisperService";
+import { exec } from "child_process";
 
-const router: Router = express.Router();
+const router = express.Router();
 
-router.post("/", async (req: Request, res: Response): Promise<void> => {
+router.post("/", async (req, res) => {
   try {
-    const { audioBase64 } = req.body;
+    const audioBase64 = req.body.audioBase64;
+    const tempDir = path.join(__dirname, "..", "temp");
 
-    if (!audioBase64 || typeof audioBase64 !== "string") {
-        res.status(400).json({ error: "No audio data received" });
-        return;
-    }
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
 
-    const base64Data = audioBase64.replace(/^data:audio\/\w+;base64,/, "");
-    const buffer = Buffer.from(base64Data, "base64");
+    const inputWebmPath = path.join(tempDir, "input.webm");
+    const inputWavPath = path.join(tempDir, "input.wav");
+    const outputBasePath = path.join(tempDir, "output"); // No extension here
 
-    const fileName = `${uuidv4()}.webm`;
-    const filePath = path.join("uploads", fileName);
-    fs.writeFileSync(filePath, buffer);
+    // Step 1: Decode and save base64 .webm file
+    const base64Data = audioBase64.split(";base64,").pop();
+    fs.writeFileSync(inputWebmPath, Buffer.from(base64Data!, "base64"));
 
-    const transcript = await transcribeAudio(filePath);
+    // Step 2: Convert .webm to .wav using FFmpeg
+    const ffmpegCommand = `ffmpeg -y -i "${inputWebmPath}" -ar 16000 -ac 1 -f wav "${inputWavPath}"`;
+    exec(ffmpegCommand, (ffmpegErr) => {
+      if (ffmpegErr) {
+        console.error("FFmpeg conversion failed:", ffmpegErr);
+        return res.status(500).json({ error: "Audio conversion failed" });
+      }
 
-    fs.unlinkSync(filePath);
-    res.json({ transcript });
-  } catch (error) {
-    console.error("Transcription failed:", error);
-    res.status(500).json({ error: "Transcription failed" });
+      // Step 3: Transcribe .wav using whisper.cpp
+      const whisperPath = path.join(__dirname, "..", "whisper-cli", "build", "bin", "whisper-cli");
+      const modelPath = path.join(__dirname, "..", "whisper-cli", "models", "ggml-base.en.bin");
+      const whisperCommand = `${whisperPath} -m "${modelPath}" -f "${inputWavPath}" -otxt -of "${outputBasePath}"`;
+
+      exec(whisperCommand, (whisperErr, stdout, stderr) => {
+        console.log("Whisper STDOUT:", stdout);
+        console.log("Whisper STDERR:", stderr);
+
+        if (whisperErr) {
+          console.error("Whisper.cpp transcription failed:", whisperErr);
+          return res.status(500).json({ error: "Transcription failed" });
+        }
+
+        const transcriptPath = `${outputBasePath}.txt`;
+        if (!fs.existsSync(transcriptPath)) {
+          console.error("Transcript not found at:", transcriptPath);
+          return res.status(500).json({ error: "Transcript not found" });
+        }
+
+        const transcript = fs.readFileSync(transcriptPath, "utf-8");
+        res.json({ transcript });
+      });
+    });
+
+  } catch (err) {
+    console.error("Error handling transcription:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

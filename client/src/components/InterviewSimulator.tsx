@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReactMarkdown from 'react-markdown';
 
 type QuestionFeedback = {
   question: string;
@@ -172,17 +173,26 @@ const InterviewSimulator: React.FC = () => {
           )}
 
           {/* Feedback */}
-          {feedback[currentIndex] && (
-            <div style={{ marginTop: "1rem", padding: "1rem", border: "1px solid #ccc" }}>
-              <h4>Feedback</h4>
-              <p>{feedback[currentIndex]?.feedback}</p>
-              <ul>
-                {Object.entries(feedback[currentIndex]!.score).map(([k, v]) => (
-                  <li key={k}><strong>{k}:</strong> {v}/10</li>
-                ))}
-              </ul>
-            </div>
-          )}
+
+
+{feedback[currentIndex] && (
+  <div
+    style={{
+      marginTop: "1.5rem",
+      padding: "1.5rem",
+      border: "1px solid #ddd",
+      borderRadius: "10px",
+      backgroundColor: "#fcfcfc",
+      fontFamily: "Segoe UI, sans-serif",
+      fontSize: "1rem",
+      lineHeight: "1.6",
+    }}
+  >
+    <h3 style={{ marginBottom: "1rem", color: "#2c3e50" }}>Evaluation Feedback</h3>
+    <ReactMarkdown>{feedback[currentIndex]!.feedback}</ReactMarkdown>
+  </div>
+)}
+
         </>
       )}
     </div>
