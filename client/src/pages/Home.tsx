@@ -1,57 +1,72 @@
+import React from 'react';
+import { Box, Container, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { AvatarHome } from './AvatarHome';
 
 const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div
-      style={{
+    <Container
+      maxWidth="lg"
+      sx={{
+        height: '100vh',          
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '4rem',
-        height: '100vh',
-        background: 'white',
-        fontFamily: "'Segoe UI', sans-serif",
+        gap: 4,
       }}
     >
-      {/* Left Side Content */}
-      <div style={{ flex: 1, paddingRight: '3rem' }}>
-        <h1 style={{ fontSize: '3rem', color: '#2c3e50', marginBottom: '1rem' }}>
-          Welcome to <span style={{ color: '#0077b6' }}>PrepBot</span>
-        </h1>
-        <p style={{ fontSize: '1.2rem', color: '#555', marginBottom: '2rem' }}>
-          Practice your interviews with real-time AI feedback and become the best version of your professional self.
-        </p>
-        <button
-          onClick={() => navigate('/interview')}
-          style={{
-            padding: '0.75rem 2rem',
-            fontSize: '1rem',
-            backgroundColor: '#0077b6',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '14px',
-            cursor: 'pointer',
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-            transition: 'background-color 0.3s ease',
+      <Box
+        flex={1}
+        sx={{
+          height: '100%',            
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <AvatarHome />
+      </Box>
+      <Box
+        flex={1}
+        sx={{
+          height: '100%',            
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          textAlign: 'left',
+          gap: 2,
+        }}
+      >
+        <Typography variant="h2" sx={{ color: '#07466E' }}>
+          Welcome to PrepBot
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 4 }}>
+          Nail your interviews with a little help from AI magic.
+        </Typography>
+        <Button
+          variant="outlined"
+          size="medium"
+          sx={{
+            backgroundColor: '#07466E',
+            borderRadius: '18px',
+            color: 'white',
+            '&:hover': {
+              color: '#07466E',
+              backgroundColor: 'white',
+              borderColor: '#07466E',
+            },
+            padding: '8px 20px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            width: 'fit-content',   
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#023e8a')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0077b6')}
+          onClick={() => navigate('/interview')}
         >
           Start Interview
-        </button>
-      </div>
-
-      {/* Right Side Image */}
-      <div style={{ flex: 1, textAlign: 'center' }}>
-        <img
-          src="../src/img/3661727.jpg"
-          alt="Interview illustration"
-          style={{ maxWidth: '100%', height: 'auto', borderRadius: '1rem' }}
-        />
-      </div>
-    </div>
+        </Button>
+      </Box>
+    </Container>
   );
 };
 

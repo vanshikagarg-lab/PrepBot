@@ -50,7 +50,7 @@ Evaluate the response for:
 - Confidence
 - Communication skills
 
-Provide specific feedback and improvement tips.
+Provide specific feedback and improvement tips in conversational tone, as if you were coaching the candidate directly and keep only the feedback section concise.
 `;
 
   try {
