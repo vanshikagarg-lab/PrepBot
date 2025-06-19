@@ -1,21 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ReactMarkdown from 'react-markdown';
-import { Backdrop, CircularProgress, MobileStepper, Button, Modal, Fade, Box } from '@mui/material';
+import { Box, CircularProgress, Container, Typography, Backdrop, IconButton, Tooltip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import Lottie from "lottie-react";
+import animationData from "../assets/interview-character.json";
 import FeedbackModal from "./FeedbackModal";
-
-
-type QuestionFeedback = {
-  question: string;
-  answer: string;
-  feedback: string;
-  score: {
-    clarity: number;
-    relevance: number;
-    structure: number;
-    confidence: number;
-  };
-};
+import CallEndIcon from '@mui/icons-material/CallEnd'; 
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+import MicIcon from '@mui/icons-material/Mic';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import FeedbackIcon from '@mui/icons-material/Feedback';
 
 const TOTAL_QUESTIONS = 5;
 
@@ -23,11 +19,14 @@ const InterviewSimulator: React.FC = () => {
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<string[]>(Array(TOTAL_QUESTIONS).fill(""));
-  const [feedback, setFeedback] = useState<(QuestionFeedback | null)[]>(Array(TOTAL_QUESTIONS).fill(null));
+  const [feedback, setFeedback] = useState<(any | null)[]>(Array(TOTAL_QUESTIONS).fill(null));
   const [isLoading, setIsLoading] = useState(false);
   const [recording, setRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
+  const navigate = useNavigate();
+  const theme = useTheme();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -42,7 +41,7 @@ const InterviewSimulator: React.FC = () => {
 
   const startRecording = async () => {
     setTranscript("");
-    setFeedback((prev) => {
+    setFeedback(prev => {
       const newFeedback = [...prev];
       newFeedback[currentIndex] = null;
       return newFeedback;
@@ -53,7 +52,7 @@ const InterviewSimulator: React.FC = () => {
     mediaRecorderRef.current = mediaRecorder;
     audioChunksRef.current = [];
 
-    mediaRecorder.ondataavailable = (event) => {
+    mediaRecorder.ondataavailable = event => {
       audioChunksRef.current.push(event.data);
     };
 
@@ -66,7 +65,6 @@ const InterviewSimulator: React.FC = () => {
 
         setIsLoading(true);
         try {
-          // Transcribe using Whisper API
           const transcribeRes = await fetch("http://localhost:3001/api/transcribe", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -75,7 +73,6 @@ const InterviewSimulator: React.FC = () => {
           const { transcript } = await transcribeRes.json();
           setTranscript(transcript);
 
-          // Send to Gemini API for evaluation
           const evalRes = await fetch("http://localhost:3001/api/evaluate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -84,7 +81,6 @@ const InterviewSimulator: React.FC = () => {
               answer: transcript,
             }),
           });
-
           const evaluation = await evalRes.json();
 
           const updatedAnswers = [...answers];
@@ -106,10 +102,8 @@ const InterviewSimulator: React.FC = () => {
           setIsLoading(false);
         }
       };
-
-      reader.readAsDataURL(audioBlob); 
+      reader.readAsDataURL(audioBlob);
     };
-
 
     mediaRecorder.start();
     setRecording(true);
@@ -120,149 +114,211 @@ const InterviewSimulator: React.FC = () => {
     setRecording(false);
   };
 
-  const theme = useTheme();
-  const [activeStep, setActiveStep] = React.useState(0);
-
   const handleNext = () => {
     if (currentIndex < TOTAL_QUESTIONS - 1) {
       setCurrentIndex(currentIndex + 1);
       setTranscript("");
     }
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
-  const handleBack = () => {
+  const handlePrevious = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
       setTranscript("");
     }
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-
   return (
-    <div style={{ padding: "2rem" }}>
-      {questions.length === 0 ? (
-        <Backdrop
-          sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
-          open={true}
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
-      ) : (
-        <>
-          <h2>Question {currentIndex + 1} of {TOTAL_QUESTIONS}</h2>
-          <p><strong>{questions[currentIndex]}</strong></p>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        height: '100vh',
+        overflow: 'hidden', // prevents scrollbars on page
+        background: 'linear-gradient(to right, #e3f2fd, #ffffff)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        py: 6,
+        px: 3,
+      }}
+    >
+      <Container
+        maxWidth="md"
+        sx={{
+          p: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3,
+        }}
+      >
+        <Typography variant="h4" sx={{ textAlign: 'center', color: '#07466E' }}>
+          Interview Session
+        </Typography>
 
-          {/* Recording Controls */}
-          <div style={{ marginTop: "1rem" }}>
-            <button
-              onClick={recording ? stopRecording : startRecording}
-              disabled={isLoading}
-              style={{
-                backgroundColor: recording ? "#e53935" : "#1e88e5",
-                color: "#fff",
-                padding: "0.5rem 1rem",
-                marginRight: "1rem",
-              }}
-            >
-              {recording ? "Stop Recording" : "Start Recording"}
-            </button>
-
-            <MobileStepper
-              variant="text"
-              steps={5}
-              position="static"
-              activeStep={activeStep}
-              sx={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                width: '100%',
-
-              }}
-              nextButton={
-                <Button
-                  onClick={handleNext}
-                  disabled={activeStep === 4}
-                  variant="outlined"
-                  size="medium"
-                  sx={{
-                    color: '#07466E',
-                    backgroundColor: 'white',
-                    borderColor: '#07466E',
-                    borderRadius: '18px',
-                    minWidth: '40px',
-                    padding: 0,
-                    fontSize: '20px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {'>'}
-                </Button>
-              }
-              backButton={
-                <Button
-                  onClick={handleBack}
-                  disabled={activeStep === 0}
-                  variant="outlined"
-                  size="medium"
-                  sx={{
-                    color: '#07466E',
-                    backgroundColor: 'white',
-                    borderColor: '#07466E',
-                    borderRadius: '18px',
-                    minWidth: '40px',
-                    padding: 0,
-                    fontSize: '20px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {'<'}
-                </Button>
-              }
-            />
-          </div>
-
-          {isLoading && <Backdrop
-            sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
-            open={true}
-          >
+        {questions.length === 0 || isLoading ? (
+          <Backdrop sx={{ color: '#fff', zIndex: theme.zIndex.drawer + 1 }} open>
             <CircularProgress color="inherit" />
-          </Backdrop>}
-
-          {/* Transcript */}
-          {transcript && (
-            <div style={{ marginTop: "1rem" }}>
-              <h4>Transcript</h4>
-              <p style={{ backgroundColor: "#f5f5f5", padding: "0.5rem" }}>{transcript}</p>
-            </div>
-          )}
-
-          {/* Feedback */}
-
-
-          {/* {feedback[currentIndex] && (
-            <div
-              style={{
-                marginTop: "1.5rem",
-                padding: "1.5rem",
-                border: "1px solid #ddd",
-                borderRadius: "10px",
-                backgroundColor: "#fcfcfc",
-                fontFamily: "Segoe UI, sans-serif",
-                fontSize: "1rem",
-                lineHeight: "1.6",
+          </Backdrop>
+        ) : (
+          <>
+            <Box
+              sx={{
+                backgroundColor: '#ffffff',
+                p: 3,
+                textAlign: 'center',
+                borderRadius: 3,
               }}
             >
-              <h3 style={{ marginBottom: "1rem", color: "#2c3e50" }}>Evaluation Feedback</h3>
-              <ReactMarkdown>{feedback[currentIndex]!.feedback}</ReactMarkdown>
-            </div>
-          )} */}
-<FeedbackModal feedback={feedback} currentIndex={currentIndex} />
-        </>
-      )}
-    </div>
+              <Typography variant="h5" sx={{ color: '#07466E', mb: 1 }}>
+                Question {currentIndex + 1} of {TOTAL_QUESTIONS}
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                {questions[currentIndex]}
+              </Typography>
+            </Box>
+
+            {recording && (
+              <Box sx={{ textAlign: 'center', mt: 1 }}>
+                <Typography variant="body2" sx={{ color: 'red' }}>
+                  🎙️ Recording in progress...
+                </Typography>
+              </Box>
+            )}
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+              <Lottie animationData={animationData} style={{ height: 250 }} />
+            </Box>
+
+            <Box
+              sx={{
+                mt: 4,
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 3,
+                backdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                borderRadius: '50px',
+                p: 2,
+                // boxShadow removed per your request
+              }}
+            >
+              <Tooltip title="View Feedback">
+                <IconButton
+                  onClick={() => setIsFeedbackModalOpen(true)}
+                  sx={{
+                    color: '#fff',
+                    backgroundColor: '#07466E',
+                    borderRadius: '50%',
+                    p: 1.5,
+                    '&:hover': {
+                      backgroundColor: '#063655',
+                    },
+                  }}
+                >
+                  <FeedbackIcon />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Previous Question">
+              <IconButton
+                onClick={handlePrevious}
+                disabled={currentIndex === 0}
+                sx={{
+                  color: currentIndex === 0 ? '#ccc' : '#fff',
+                  backgroundColor: currentIndex === 0 ? '#e0e0e0' : '#07466E',
+                  borderRadius: '50%',
+                  p: 1.5,
+                  '&:hover': {
+                    backgroundColor: currentIndex === 0 ? '#e0e0e0' : '#063655',
+                  },
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+            </Tooltip>
+
+              <Tooltip title={recording ? "Stop Recording" : "Start Recording"}>
+                <IconButton
+                  onClick={recording ? stopRecording : startRecording}
+                  sx={{
+                    color: '#fff',
+                    backgroundColor: recording ? '#e53935' : '#07466E',
+                    borderRadius: '50%',
+                    p: 1.5,
+                    '&:hover': {
+                      backgroundColor: recording ? '#d32f2f' : '#063655',
+                    },
+                  }}
+                >
+                  {recording ? <StopCircleIcon /> : <MicIcon />}
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Next Question">
+                <IconButton
+                  onClick={handleNext}
+                  sx={{
+                    color: currentIndex >= TOTAL_QUESTIONS - 1 ? '#ccc' : '#fff',
+                    backgroundColor: currentIndex >= TOTAL_QUESTIONS - 1 ? '#e0e0e0' : '#07466E',
+                    borderRadius: '50%',
+                    p: 1.5,
+                    '&:hover': {
+                      backgroundColor: currentIndex >= TOTAL_QUESTIONS - 1 ? '#e0e0e0' : '#063655',
+                    },
+                  }}
+                  disabled={currentIndex >= TOTAL_QUESTIONS - 1}
+                >
+                  <ArrowForwardIcon />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="End Interview">
+                <IconButton
+                  onClick={() => navigate("/")}
+                  sx={{
+                    color: '#fff',
+                    backgroundColor: '#e53935',
+                    borderRadius: '50%',
+                    p: 1.5,
+                    '&:hover': {
+                      backgroundColor: '#d32f2f',
+                    },
+                  }}
+                >
+                  <CallEndIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+
+            {transcript && (
+              <Box
+                sx={{
+                  mt: 4,
+                  p: 3,
+                  backgroundColor: '#f0f8ff',
+                  borderRadius: 2,
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+                }}
+              >
+                <Typography variant="subtitle1" sx={{ color: '#07466E', mb: 1 }}>
+                  Your Response
+                </Typography>
+                <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                  {transcript}
+                </Typography>
+              </Box>
+            )}
+
+            <FeedbackModal
+              open={isFeedbackModalOpen}
+              onClose={() => setIsFeedbackModalOpen(false)}
+              feedback={feedback}
+              currentIndex={currentIndex}
+            />
+          </>
+        )}
+      </Container>
+    </Box>
   );
 };
 
