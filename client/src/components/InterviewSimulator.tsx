@@ -11,6 +11,7 @@ import StopCircleIcon from '@mui/icons-material/StopCircle';
 import MicIcon from '@mui/icons-material/Mic';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import HomeIcon from '@mui/icons-material/Home';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 
 const TOTAL_QUESTIONS = 5;
@@ -189,22 +190,19 @@ const InterviewSimulator: React.FC = () => {
               <Lottie animationData={animationData} style={{ height: 250 }} />
             </Box>
 
-            <Box
-              sx={{
-                mt: 4,
-                display: 'flex',
-                justifyContent: 'center',
-                gap: 3,
-                backdropFilter: 'blur(8px)',
-                backgroundColor: 'rgba(255, 255, 255, 0.75)',
-                borderRadius: '50px',
-                p: 2,
-                // boxShadow removed per your request
-              }}
-            >
-              <Tooltip title="View Feedback">
+            <Box sx={{
+              mt: 4,
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 3,
+              backdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.75)',
+              p: 2,
+              borderRadius: '50px'
+            }}>
+              <Tooltip title="Home">
                 <IconButton
-                  onClick={() => setIsFeedbackModalOpen(true)}
+                  onClick={() => navigate("/")}
                   sx={{
                     color: '#fff',
                     backgroundColor: '#07466E',
@@ -215,7 +213,7 @@ const InterviewSimulator: React.FC = () => {
                     },
                   }}
                 >
-                  <FeedbackIcon />
+                  <HomeIcon />
                 </IconButton>
               </Tooltip>
 
@@ -233,7 +231,7 @@ const InterviewSimulator: React.FC = () => {
                   },
                 }}
               >
-                <ArrowBackIcon />
+                <ArrowBackIcon fontSize="small" />
               </IconButton>
             </Tooltip>
 
@@ -272,9 +270,26 @@ const InterviewSimulator: React.FC = () => {
                 </IconButton>
               </Tooltip>
 
+              <Tooltip title="View Feedback">
+                <IconButton
+                  onClick={() => setIsFeedbackModalOpen(true)}
+                  sx={{
+                    color: '#fff',
+                    backgroundColor: '#07466E',
+                    borderRadius: '50%',
+                    p: 1.5,
+                    '&:hover': {
+                      backgroundColor: '#063655',
+                    },
+                  }}
+                >
+                  <FeedbackIcon />
+                </IconButton>
+              </Tooltip>
+
               <Tooltip title="End Interview">
                 <IconButton
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/reflection")}
                   sx={{
                     color: '#fff',
                     backgroundColor: '#e53935',
@@ -289,6 +304,7 @@ const InterviewSimulator: React.FC = () => {
                 </IconButton>
               </Tooltip>
             </Box>
+
 
             {transcript && (
               <Box
