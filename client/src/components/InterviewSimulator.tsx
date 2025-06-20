@@ -134,8 +134,8 @@ const InterviewSimulator: React.FC = () => {
       sx={{
         minHeight: '100vh',
         height: '100vh',
-        overflow: 'hidden', // prevents scrollbars on page
-        background: 'linear-gradient(to right, #e3f2fd, #ffffff)',
+        overflow: 'hidden',
+        background: '#e3f2fd',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -173,7 +173,7 @@ const InterviewSimulator: React.FC = () => {
               <Typography variant="h5" sx={{ color: '#07466E', mb: 1 }}>
                 Question {currentIndex + 1} of {TOTAL_QUESTIONS}
               </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              <Typography variant="h6" sx={{ fontWeight: 500, fontSize: '1rem' }}>
                 {questions[currentIndex]}
               </Typography>
             </Box>
@@ -190,16 +190,18 @@ const InterviewSimulator: React.FC = () => {
               <Lottie animationData={animationData} style={{ height: 250 }} />
             </Box>
 
-            <Box sx={{
-              mt: 4,
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 3,
-              backdropFilter: 'blur(8px)',
-              backgroundColor: 'rgba(255, 255, 255, 0.75)',
-              p: 2,
-              borderRadius: '50px'
-            }}>
+            <Box
+              sx={{
+                mt: 4,
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 3,
+                backdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                borderRadius: '50px',
+                p: 2,
+              }}
+            >
               <Tooltip title="Home">
                 <IconButton
                   onClick={() => navigate("/")}
@@ -248,7 +250,7 @@ const InterviewSimulator: React.FC = () => {
                     },
                   }}
                 >
-                  {recording ? <StopCircleIcon /> : <MicIcon />}
+                  {recording ? <StopCircleIcon fontSize="small"/> : <MicIcon fontSize="small"/>}
                 </IconButton>
               </Tooltip>
 
@@ -266,7 +268,7 @@ const InterviewSimulator: React.FC = () => {
                   }}
                   disabled={currentIndex >= TOTAL_QUESTIONS - 1}
                 >
-                  <ArrowForwardIcon />
+                  <ArrowForwardIcon fontSize="small"/>
                 </IconButton>
               </Tooltip>
 
@@ -300,7 +302,7 @@ const InterviewSimulator: React.FC = () => {
                     },
                   }}
                 >
-                  <CallEndIcon />
+                  <CallEndIcon fontSize="small"/>
                 </IconButton>
               </Tooltip>
             </Box>
@@ -316,12 +318,12 @@ const InterviewSimulator: React.FC = () => {
                   boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
                 }}
               >
-                <Typography variant="subtitle1" sx={{ color: '#07466E', mb: 1 }}>
+                {/* <Typography variant="subtitle1" sx={{ color: '#07466E', mb: 1 }}>
                   Your Response
-                </Typography>
-                <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                </Typography> */}
+                {/* <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
                   {transcript}
-                </Typography>
+                </Typography> */}
               </Box>
             )}
 
