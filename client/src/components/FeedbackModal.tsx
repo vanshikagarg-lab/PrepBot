@@ -25,6 +25,7 @@ const modalStyle = {
 
 type FeedbackType = {
   feedback: string;
+  answer: string; // new
 };
 
 type FeedbackModalProps = {
@@ -40,6 +41,8 @@ export default function FeedbackModal({
   feedback,
   currentIndex,
 }: FeedbackModalProps) {
+  const current = feedback[currentIndex];
+
   return (
     <Modal
       open={open}
@@ -53,9 +56,23 @@ export default function FeedbackModal({
           <Typography variant="h6" sx={{ color: '#2c3e50', mb: 2 }}>
             Evaluation Feedback
           </Typography>
+
+          <Typography variant="subtitle2" sx={{ color: '#555', mb: 1 }}>
+            <strong>Transcription:</strong>
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ mb: 3, backgroundColor: '#f5f5f5', p: 2, borderRadius: 2 }}
+          >
+            {current?.answer || 'No transcription available.'}
+          </Typography>
+
+          <Typography variant="subtitle2" sx={{ color: '#555', mb: 1 }}>
+            <strong>Feedback:</strong>
+          </Typography>
           <Typography variant="body1" sx={{ fontSize: '1rem', lineHeight: 1.6 }}>
             <ReactMarkdown>
-              {feedback[currentIndex]?.feedback || 'No feedback available.'}
+              {current?.feedback || 'No feedback available.'}
             </ReactMarkdown>
           </Typography>
         </Box>

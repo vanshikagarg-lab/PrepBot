@@ -10,9 +10,9 @@ const router = express.Router();
 router.post("/", async (req: Request, res: Response) => {
   try {
     const audioBase64 = req.body.audioBase64;
-    const tempDir = path.join(__dirname, "..", "temp");
+    const tempDir = path.join(__dirname, "..", "..", "temp");
 
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
     const inputWebmPath = path.join(tempDir, "input.webm");
     const inputWavPath = path.join(tempDir, "input.wav");
@@ -30,9 +30,9 @@ router.post("/", async (req: Request, res: Response) => {
         return res.status(500).json({ error: "Audio conversion failed" });
       }
 
-      // Transcribe using whisper.cpp
-      const whisperPath = path.join(__dirname, "..", "whisper-cli", "build", "bin", "whisper-cli");
-      const modelPath = path.join(__dirname, "..", "whisper-cli", "models", "ggml-base.en.bin");
+      // Fixed: Proper path from compiled `dist/routes` folder to root `server/whisper-cli`
+      const whisperPath = path.resolve(__dirname, "../../whisper-cli/build/bin/whisper-cli");
+      const modelPath = path.resolve(__dirname, "../../whisper-cli/models/ggml-base.en.bin");
       const whisperCommand = `${whisperPath} -m "${modelPath}" -f "${inputWavPath}" -otxt -of "${outputBasePath}"`;
 
       exec(whisperCommand, (whisperErr, stdout, stderr) => {
