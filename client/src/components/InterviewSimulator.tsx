@@ -16,6 +16,8 @@ import FeedbackIcon from '@mui/icons-material/Feedback';
 
 const TOTAL_QUESTIONS = 5;
 
+const API_BASE_URL = "https://prepbot-backend.onrender.com";
+
 const InterviewSimulator: React.FC = () => {
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -33,7 +35,7 @@ const InterviewSimulator: React.FC = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const res = await fetch("http://localhost:3001/api/questions");
+      const res = await fetch(`${API_BASE_URL}/api/questions`);
       const data = await res.json();
       setQuestions(data.questions.slice(0, TOTAL_QUESTIONS));
     };
@@ -66,7 +68,7 @@ const InterviewSimulator: React.FC = () => {
 
         setIsLoading(true);
         try {
-          const transcribeRes = await fetch("http://localhost:3001/api/transcribe", {
+          const transcribeRes = await fetch(`${API_BASE_URL}/api/transcribe`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ audioBase64: base64Audio }),
@@ -74,7 +76,7 @@ const InterviewSimulator: React.FC = () => {
           const { transcript } = await transcribeRes.json();
           setTranscript(transcript);
 
-          const evalRes = await fetch("http://localhost:3001/api/evaluate", {
+          const evalRes = await fetch(`${API_BASE_URL}/api/evaluate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -220,22 +222,22 @@ const InterviewSimulator: React.FC = () => {
               </Tooltip>
 
               <Tooltip title="Previous Question">
-              <IconButton
-                onClick={handlePrevious}
-                disabled={currentIndex === 0}
-                sx={{
-                  color: currentIndex === 0 ? '#ccc' : '#fff',
-                  backgroundColor: currentIndex === 0 ? '#e0e0e0' : '#07466E',
-                  borderRadius: '50%',
-                  p: 1.5,
-                  '&:hover': {
-                    backgroundColor: currentIndex === 0 ? '#e0e0e0' : '#063655',
-                  },
-                }}
-              >
-                <ArrowBackIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+                <IconButton
+                  onClick={handlePrevious}
+                  disabled={currentIndex === 0}
+                  sx={{
+                    color: currentIndex === 0 ? '#ccc' : '#fff',
+                    backgroundColor: currentIndex === 0 ? '#e0e0e0' : '#07466E',
+                    borderRadius: '50%',
+                    p: 1.5,
+                    '&:hover': {
+                      backgroundColor: currentIndex === 0 ? '#e0e0e0' : '#063655',
+                    },
+                  }}
+                >
+                  <ArrowBackIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
 
               <Tooltip title={recording ? "Stop Recording" : "Start Recording"}>
                 <IconButton
@@ -302,30 +304,10 @@ const InterviewSimulator: React.FC = () => {
                     },
                   }}
                 >
-                  <CallEndIcon fontSize="small"/>
+                  <CallEndIcon />
                 </IconButton>
               </Tooltip>
             </Box>
-
-
-            {transcript && (
-              <Box
-                sx={{
-                  mt: 4,
-                  p: 3,
-                  backgroundColor: '#f0f8ff',
-                  borderRadius: 2,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-                }}
-              >
-                {/* <Typography variant="subtitle1" sx={{ color: '#07466E', mb: 1 }}>
-                  Your Response
-                </Typography> */}
-                {/* <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
-                  {transcript}
-                </Typography> */}
-              </Box>
-            )}
 
             <FeedbackModal
               open={isFeedbackModalOpen}
