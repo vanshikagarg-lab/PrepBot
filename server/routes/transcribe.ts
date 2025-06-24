@@ -18,11 +18,11 @@ router.post("/", async (req: Request, res: Response) => {
     const inputWavPath = path.join(tempDir, "input.wav");
     const outputBasePath = path.join(tempDir, "output");
 
-    // Save base64 to .webm
+    // Save base64 audio to .webm file
     const base64Data = audioBase64.split(";base64,").pop();
     fs.writeFileSync(inputWebmPath, Buffer.from(base64Data!, "base64"));
 
-    // Convert .webm to .wav
+    // Convert .webm to .wav using ffmpeg
     const ffmpegCommand = `ffmpeg -y -i "${inputWebmPath}" -ar 16000 -ac 1 -f wav "${inputWavPath}"`;
     exec(ffmpegCommand, (ffmpegErr) => {
       if (ffmpegErr) {
@@ -30,9 +30,9 @@ router.post("/", async (req: Request, res: Response) => {
         return res.status(500).json({ error: "Audio conversion failed" });
       }
 
-      // Fixed: Proper path from compiled `dist/routes` folder to root `server/whisper-cli`
-      const whisperPath = path.resolve(__dirname, "../../whisper-cli/build/bin/whisper-cli");
-      const modelPath = path.resolve(__dirname, "../../whisper-cli/models/ggml-base.en.bin");
+      // Use absolute paths inside Docker container
+      const whisperPath = "/whisper.cpp/build/whisper-cli";
+      const modelPath = "/whisper.cpp/models/ggml-base.en.bin";
       const whisperCommand = `${whisperPath} -m "${modelPath}" -f "${inputWavPath}" -otxt -of "${outputBasePath}"`;
 
       exec(whisperCommand, (whisperErr, stdout, stderr) => {
