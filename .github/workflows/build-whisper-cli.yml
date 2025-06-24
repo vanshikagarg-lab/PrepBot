@@ -11,18 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout your repo
         uses: actions/checkout@v4
+
+      - name: Show current directory structure
+        run: ls -la
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y build-essential cmake
 
-      - name: Clean old whisper-cpp (if exists)
+      - name: Clean old whisper-cpp if exists
         run: rm -rf whisper-cpp
 
       - name: Clone whisper.cpp
+        run: git clone https://github.com/ggerganov/whisper.cpp.git whisper-cpp
+
+      - name: Build whisper-cli
         run: |
-          git clone https://github.com/ggerganov/whisper.cpp.git whisper-cpp
           cd whisper-cpp
           mkdir build && cd build
           cmake ..
