@@ -1,30 +1,35 @@
 // index.ts
 
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 
+// Load environment variables
+dotenv.config();
+
 import evaluateRoute from "./routes/evaluate";
 import questionsRoute from "./routes/questions";
-import * as transcribeModule from "./routes/transcribe";
-const transcribeRouter = transcribeModule.default;// ✅ default import
-
-dotenv.config();
+import transcribeRouter from "./routes/transcribe"; // Must be a default export
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Middleware
 app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 
-// ✅ DEBUG LOG to verify type
-console.log("✅ transcribeRouter is:", typeof transcribeRouter);
+// Optional: Health check or root endpoint
+app.get("/", (_req: Request, res: Response) => {
+  res.send("PrepBot backend is running 🚀");
+});
 
+// Routes
 app.use("/api/evaluate", evaluateRoute);
 app.use("/api/questions", questionsRoute);
-app.use("/api/transcribe", transcribeRouter); // ✅ must be object, not function
+app.use("/api/transcribe", transcribeRouter);
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ PrepBot server is running on port ${PORT}`);
 });

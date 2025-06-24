@@ -1,11 +1,13 @@
-import express from "express";
+// routes/transcribe.ts
+
+import express, { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
 import { exec } from "child_process";
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/", async (req: Request, res: Response) => {
   try {
     const audioBase64 = req.body.audioBase64;
     const tempDir = path.join(__dirname, "..", "temp");
@@ -14,37 +16,36 @@ router.post("/", async (req, res) => {
 
     const inputWebmPath = path.join(tempDir, "input.webm");
     const inputWavPath = path.join(tempDir, "input.wav");
-    const outputBasePath = path.join(tempDir, "output"); // No extension here
+    const outputBasePath = path.join(tempDir, "output");
 
-    // Step 1: Decode and save base64 .webm file
+    // Save base64 to .webm
     const base64Data = audioBase64.split(";base64,").pop();
     fs.writeFileSync(inputWebmPath, Buffer.from(base64Data!, "base64"));
 
-    // Step 2: Convert .webm to .wav using FFmpeg
+    // Convert .webm to .wav
     const ffmpegCommand = `ffmpeg -y -i "${inputWebmPath}" -ar 16000 -ac 1 -f wav "${inputWavPath}"`;
     exec(ffmpegCommand, (ffmpegErr) => {
       if (ffmpegErr) {
-        console.error("FFmpeg conversion failed:", ffmpegErr);
+        console.error("FFmpeg error:", ffmpegErr);
         return res.status(500).json({ error: "Audio conversion failed" });
       }
 
-      // Step 3: Transcribe .wav using whisper.cpp
+      // Transcribe using whisper.cpp
       const whisperPath = path.join(__dirname, "..", "whisper-cli", "build", "bin", "whisper-cli");
       const modelPath = path.join(__dirname, "..", "whisper-cli", "models", "ggml-base.en.bin");
       const whisperCommand = `${whisperPath} -m "${modelPath}" -f "${inputWavPath}" -otxt -of "${outputBasePath}"`;
 
       exec(whisperCommand, (whisperErr, stdout, stderr) => {
-        console.log("Whisper STDOUT:", stdout);
-        console.log("Whisper STDERR:", stderr);
+        console.log("Whisper stdout:", stdout);
+        console.log("Whisper stderr:", stderr);
 
         if (whisperErr) {
-          console.error("Whisper.cpp transcription failed:", whisperErr);
+          console.error("Whisper error:", whisperErr);
           return res.status(500).json({ error: "Transcription failed" });
         }
 
         const transcriptPath = `${outputBasePath}.txt`;
         if (!fs.existsSync(transcriptPath)) {
-          console.error("Transcript not found at:", transcriptPath);
           return res.status(500).json({ error: "Transcript not found" });
         }
 
@@ -52,9 +53,8 @@ router.post("/", async (req, res) => {
         res.json({ transcript });
       });
     });
-
   } catch (err) {
-    console.error("Error handling transcription:", err);
+    console.error("Transcription route error:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

@@ -1,20 +1,34 @@
-# Node.js
+# Node.js dependencies
 node_modules/
+
+# Environment variables
 .env
+
+# Build output
+dist/
 
 # Logs
 *.log
 npm-debug.log*
 
-# OS / IDE
+# System files
 .DS_Store
+
+# IDE/editor settings
 .vscode/
 *.swp
 
-# Audio
+# Audio files (if used)
 *.webm
 *.wav
 *.mp3
 
-# Whisper outputs
+# Whisper outputs or audio-to-text
 *.txt
+
+# TypeScript
+*.tsbuildinfo
+
+# Optional: macOS Finder attributes
+.AppleDouble
+.LSOverride
