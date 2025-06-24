@@ -16,7 +16,7 @@ import FeedbackIcon from '@mui/icons-material/Feedback';
 
 const TOTAL_QUESTIONS = 5;
 
-const API_BASE_URL = "https://prepbot-backend.onrender.com";
+const API_BASE_URL = "https://prepbot-backend-docker.onrender.com";
 
 const InterviewSimulator: React.FC = () => {
   const [questions, setQuestions] = useState<string[]>([]);
