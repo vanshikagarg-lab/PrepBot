@@ -1,37 +1,37 @@
-name: Build whisper-cli
+name: Build and Release whisper-cli
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake git
+          sudo apt-get install -y build-essential cmake
 
-      - name: Clone whisper.cpp repo inside server folder
-        run: git clone https://github.com/ggerganov/whisper.cpp.git server/whisper.cpp
-
-      - name: Build whisper-cli binary
-        working-directory: server/whisper.cpp
+      - name: Clone whisper.cpp and build binary
         run: |
-          mkdir -p build
+          git clone https://github.com/ggerganov/whisper.cpp.git
+          cd whisper.cpp
+          mkdir build
           cd build
           cmake ..
           make
 
-      - name: Upload whisper-cli artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload binary to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
           name: whisper-cli
-          path: server/whisper.cpp/build/whisper-cli
+          tag_name: ${{ github.ref_name }}
+          files: whisper.cpp/build/whisper-cli
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
