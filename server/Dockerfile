@@ -25,19 +25,19 @@ RUN mkdir -p /whisper.cpp/build && cd /whisper.cpp/build && cmake .. && make
 # Create models directory inside whisper.cpp repo
 RUN mkdir -p /whisper.cpp/models
 
-# Copy your pre-downloaded model into the container
-COPY ./whisper-cli/models/ggml-base.en.bin /whisper.cpp/models/ggml-base.en.bin
+# Download ggml-base.en.bin from GitHub release
+RUN wget -O /whisper.cpp/models/ggml-base.en.bin https://github.com/vanshikagarg-lab/PrepBot/releases/download/v1.0.0/ggml-base.en.bin
 
 # Install Node.js dependencies
 RUN npm install
 
-# Build your backend (adjust if you use a different build command)
+# Build your backend (adjust if needed)
 RUN npm run build
 
-# Expose backend port (adjust if your server listens on a different port)
+# Expose backend port
 EXPOSE 3000
 
-# Set environment variable for production mode
+# Set environment variable for production
 ENV NODE_ENV production
 
 # Start the backend server
