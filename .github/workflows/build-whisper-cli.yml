@@ -1,12 +1,10 @@
-on:
-  workflow_dispatch:
-
 name: Build and Release whisper-cli
 
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'        # Trigger on tags like v1.0.0
+  workflow_dispatch: # Allow manual trigger from GitHub UI
 
 jobs:
   build:
@@ -16,25 +14,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake
+      - name: Set up CMake
+        uses: jwlawson/actions-setup-cmake@v1
 
-      - name: Clone whisper.cpp and build binary
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake
+
+      - name: Clone whisper.cpp
         run: |
           git clone https://github.com/ggerganov/whisper.cpp.git
           cd whisper.cpp
-          mkdir build
-          cd build
+          mkdir build && cd build
           cmake ..
           make
+          cp whisper-cli ../../whisper-cli
 
-      - name: Upload binary to GitHub Release
+      - name: Upload whisper-cli as release asset
         uses: softprops/action-gh-release@v2
         with:
-          name: whisper-cli
-          tag_name: ${{ github.ref_name }}
-          files: whisper.cpp/build/whisper-cli
+          files: whisper-cli
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
